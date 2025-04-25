@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGCT Result Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f8ff;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            height: 80px;
+            margin-right: 20px;
+        }
+        
+        .title {
+            text-align: center;
+        }
+        
+        .title h1 {
+            color: #00695c;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .title h2 {
+            color: #00796b;
+            font-size: 18px;
+        }
+        
+        .login-form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00695c;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            background-color: #00695c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #004d40;
+        }
+        
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .loading-logo {
+            width: 100px;
+            height: 100px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: #00695c;
+            font-size: 18px;
+        }
+        
+        .result-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .student-info {
+            background-color: #e0f2f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .student-info p {
+            margin: 10px 0;
+            color: #00695c;
+        }
+        
+        .result-header {
+            background-color: #00695c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .result-table th, .result-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .result-table th {
+            background-color: #009688;
+            color: white;
+        }
+        
+        .result-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .result-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #00695c;
+            font-weight: bold;
+        }
+        
+        .grade-A, .grade-A\\+ {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .grade-B, .grade-B\\+ {
+            color: #1976d2;
+            font-weight: bold;
+        }
+        
+        .grade-O {
+            color: #9c27b0;
+            font-weight: bold;
+        }
+        
+        .print-btn {
+            background-color: #00796b;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            float: right;
+        }
+        
+        .print-btn:hover {
+            background-color: #00695c;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        @media print {
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+            .header, .login-form, .print-btn {
+                display: none;
+            }
+            .result-container {
+                display: block !important;
+                box-shadow: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+            .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            .login-form, .result-container {
+                padding: 15px;
+            }
+            .result-table th, .result-table td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="image.png" alt="DGCT Logo" class="logo">
+            <div class="title">
+                <h1>DHIRAJLAL GANDHI COLLEGE OF TECHNOLOGY</h1>
+                <h2>Examination Results Portal</h2>
+            </div>
+        </div>
+        
+        <div class="login-form" id="loginForm">
+            <h2 style="text-align: center; margin-bottom: 20px; color: #00695c;">Student Result Login</h2>
+            <div class="form-group">
+                <label for="registerNo">Register Number:</label>
+                <input type="text" id="registerNo" name="registerNo" placeholder="Enter Register Number" required>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <button type="button" class="btn" onclick="showResult()">View Result</button>
+            <p class="error-message" id="errorMessage">Invalid Register Number or Date of Birth</p>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <h2>Examination Result - November-December 2024</h2>
+            </div>
+            
+            <div class="student-info">
+                <p><strong>Name:</strong> <span id="displayName"></span></p>
+                <p><strong>Register Number:</strong> <span id="displayRegNo"></span></p>
+                <p><strong>Date of Birth:</strong> <span id="displayDob"></span></p>
+                <p><strong>Degree/Branch:</strong> <span id="displayBranch"></span></p>
+                <p><strong>Semester:</strong> <span id="displaySemester"></span></p>
+            </div>
+            
+            <table class="result-table" id="resultTable">
+                <thead>
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Grade</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="resultTableBody"></tbody>
+            </table>
+            
+            <div class="result-footer">
+                <p>GPA for semester: <span id="displaySemesterNo"></span> => <span id="displayGpa"></span></p>
+                <p>Note: The above GPA is calculated based on the above result only.</p>
+            </div>
+            
+            <button class="print-btn" onclick="window.print()">Print Result</button>
+        </div>
+    </div>
+    
+    <div class="loading-container" id="loadingContainer">
+        <img src="image.png" alt="DGCT Loading Logo" class="loading-logo">
+        <p class="loading-text">Loading results, please wait...</p>
+    </div>
+    
+    <script>
+        // Student dataset
+        const studentData = {
+  "610521243001": {
+    name: "Aabith N",
+    dob: "2003-05-18",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" },
+      { code: "OMA351", name: "Graph Theory", grade: "A" }
+    ]
+  },
+  "610521243002": {
+    name: "Abishek G",
+    dob: "2004-06-25",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "AD3491", name: "Fundamentals of Data Science and Analytics", grade: "A" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "B+" }
+    ]
+  },
+  "610521243003": {
+    name: "Abith Varshan S",
+    dob: "2003-10-26",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.33,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" },
+      { code: "OMA351", name: "Graph Theory", grade: "A" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "B+" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B" }
+    ]
+  },
+  "610521243004": {
+    name: "Arunkarthick S",
+    dob: "2003-12-06",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243005": {
+    name: "Ashwathy A",
+    dob: "2004-03-31",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.44,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B+" },
+      { code: "GE3251", name: "Engineering Graphics", grade: "A" }
+    ]
+  },
+  "610521243006": {
+    name: "Baseetha S M",
+    dob: "2003-08-02",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243007": {
+    name: "Dhanaraj S",
+    dob: "2003-06-05",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243008": {
+    name: "Dhanishwar B",
+    dob: "2004-05-04",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.55,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "CCS354", name: "Network Security", grade: "B" },
+      { code: "CS3691", name: "Embedded Systems and IoT", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "A+" },
+      { code: "AL3452", name: "Operating Systems", grade: "B+" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B" }
+    ]
+  },
+  "610521243009": {
+    name: "Dhanush S",
+    dob: "2003-08-25",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243010": {
+    name: "Gokul D",
+    dob: "2004-02-21",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B+" }
+    ]
+  },
+  "610521243011": {
+    name: "Gokulavani K",
+    dob: "2003-05-23",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243012": {
+    name: "Gopi S",
+    dob: "2004-03-02",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243013": {
+    name: "Gowtham M",
+    dob: "2004-07-18",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243014": {
+    name: "Gunaseelan A M",
+    dob: "2004-02-20",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "AL3451", name: "Machine Learning", grade: "A" },
+      { code: "AD3491", name: "Fundamentals of Data Science and Analytics", grade: "B+" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A+" },
+      { code: "AD3251", name: "Data Structures Design", grade: "A" }
+    ]
+  },
+  "610521243015": {
+    name: "Harinesh Ma A",
+    dob: "2003-08-02",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243016": {
+    name: "Isaindhiniya M",
+    dob: "2002-09-26",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243017": {
+    name: "Jeevitha M",
+    dob: "2003 tillfälligt-11-27",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B" }
+    ]
+  },
+  "610521243018": {
+    name: "Karthikeyan S",
+    dob: "2004-04-13",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.57,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "AD3251", name: "Data Structures Design", grade: "A+" }
+    ]
+  },
+  "610521243019": {
+    name: "Keshore S",
+    dob: "2003-11-09",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "AD3491", name: "Fundamentals of Data Science and Analytics", grade: "A" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "B+" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B" }
+    ]
+  },
+  "610521243020": {
+    name: "Lenin Kumar R",
+    dob: "2003-07-23",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243021": {
+    name: "Lingarasan G V",
+    dob: "2003-09-15",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.58,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "AD3491", name: "Fundamentals of Data Science and Analytics", grade: "A" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A+" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B+" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B" },
+      { code: "GE3251", name: "Engineering Graphics", grade: "A+" }
+    ]
+  },
+  "610521243022": {
+    name: "Loganathan V",
+    dob: "2004-10-01",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243023": {
+    name: "Manoj Kumar S",
+    dob: "2004-04-02",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.44,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B+" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A" }
+    ]
+  },
+  "610521243024": {
+    name: "Manusri V",
+    dob: "2024-01-01",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243025": {
+    name: "Mehala K",
+    dob: "2002-09-06",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243026": {
+    name: "Mithunmanoj K",
+    dob: "2004-06-23",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.50,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "B" }
+    ]
+  },
+  "610521243027": {
+    name: "Moganavel V",
+    dob: "2002-04-23",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243028": {
+    name: "Monisha C",
+    dob: "2003-12-15",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243029": {
+    name: "Mursithrosan S",
+    dob: "2004-06-27",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243030": {
+    name: "Nandha Kumar V",
+    dob: "2004-01-19",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243032": {
+    name: "Poovarasan M",
+    dob: "2002-10-06",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243033": {
+    name: "Prakasika K",
+    dob: "2003-10-29",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243034": {
+    name: "Ramya K",
+    dob: "2004-02-11",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243035": {
+    name: "Ruban Chakravarthi A",
+    dob: "2004-06-28",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243036": {
+    name: "Sathishkumar J S",
+    dob: "2003-10-19",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.57,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "CS3691", name: "Embedded Systems and IoT", grade: "B" },
+      { code: "OMA351", name: "Graph Theory", grade: "A" },
+      { code: "GE3451", name: "Environmental Sciences and Sustainability", grade: "B+" },
+      { code: "CS3591", name: "Computer Networks (T/P)", grade: "A+" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B+" },
+      { code: "AD3251", name: "Data Structures Design", grade: "A" }
+    ]
+  },
+  "610521243037": {
+    name: "Sharmila S",
+    dob: "2004-09-08",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243038": {
+    name: "Shyam Sankar B",
+    dob: "2004-01-09",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243039": {
+    name: "Sivapriya P",
+    dob: "2003-04-01",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243040": {
+    name: "Sneka T",
+    dob: "2003-11-18",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.58,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" },
+      { code: "PH3256", name: "Physics for Information Science", grade: "B+" },
+      { code: "BE3251", name: "Basic Electrical and Electronics Engineering", grade: "A" },
+      { code: "MA3251", name: "Statistics and Numerical Methods", grade: "B" },
+      { code: "GE3251", name: "Engineering Graphics", grade: "A+" },
+      { code: "AD3251", name: "Data Structures Design", grade: "A" }
+    ]
+  },
+  "610521243041": {
+    name: "Subanetha G",
+    dob: "2004-02-21",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243042": {
+    name: "Suriya Prabhu R",
+    dob: "2003-09-14",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.57,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" }
+    ]
+  },
+  "610521243043": {
+    name: "Suvaathii E",
+    dob: "2003-11-28",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243044": {
+    name: "Swetha R",
+    dob: "2004-02-20",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.67,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "A+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" }
+    ]
+  },
+  "610521243045": {
+    name: "Tharun A",
+    dob: "2002-05-18",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.57,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "B+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" },
+      { code: "OMA351", name: "Graph Theory", grade: "B" },
+      { code: "MA3391", name: "Probability and Statistics", grade: "A" }
+    ]
+  },
+  "610521243046": {
+    name: "Thowfiq S",
+    dob: "2004-04-01",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243047": {
+    name: "Vedha Vidhya S L",
+    dob: "2005-12-27",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.60,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "B+" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "A" }
+    ]
+  },
+  "610521243048": {
+    name: "Vithya D",
+    dob: "2004-04-23",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "B+" },
+      { code: "GE3751", name: "Principles of Management", grade: "A" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  },
+  "610521243301": {
+    name: "Arunraj S",
+    dob: "2024-01-01",
+    branch: "Artificial Intelligence and Data Science",
+    semester: 7,
+    gpa: 8.40,
+    subjects: [
+      { code: "OHS352", name: "Project Report Writing", grade: "A" },
+      { code: "GE3751", name: "Principles of Management", grade: "B+" },
+      { code: "GE3791", name: "Human Values and Ethics", grade: "A+" },
+      { code: "NM1062", name: "Full Stack Development With Java", grade: "A" },
+      { code: "OMG353", name: "Democracy and Good Governance", grade: "B" }
+    ]
+  }
+};
+        function showResult() {
+            const registerNo = document.getElementById('registerNo').value;
+            const dob = document.getElementById('dob').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Validate input
+            if (!registerNo || !dob) {
+                errorMessage.textContent = 'Please enter both Register Number and Date of Birth';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Check if register number exists and DOB matches
+            if (!studentData[registerNo] || studentData[registerNo].dob !== dob) {
+                errorMessage.textContent = 'Invalid Register Number or Date of Birth';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Hide error message
+            errorMessage.style.display = 'none';
+
+            // Show loading animation
+            document.getElementById('loadingContainer').style.display = 'flex';
+
+            // Get student data
+            const student = studentData[registerNo];
+
+            // Format the date for display
+            const dobDate = new Date(dob);
+            const formattedDob = dobDate.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            // Populate student info
+            document.getElementById('displayName').textContent = student.name;
+            document.getElementById('displayRegNo').textContent = registerNo;
+            document.getElementById('displayDob').textContent = formattedDob;
+            document.getElementById('displayBranch').textContent = student.branch;
+            document.getElementById('displaySemester').textContent = student.semester;
+            document.getElementById('displaySemesterNo').textContent = `0${student.semester}`;
+            document.getElementById('displayGpa').textContent = student.gpa.toFixed(2);
+
+            // Populate result table
+            const tableBody = document.getElementById('resultTableBody');
+            tableBody.innerHTML = ''; // Clear previous content
+            student.subjects.forEach(subject => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject.code}</td>
+                    <td>${subject.name}</td>
+                    <td class="grade-${subject.grade.replace('+', '\\+')}">${subject.grade}</td>
+                    <td>${subject.grade === 'F' ? 'FAIL' : 'PASS'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Simulate loading time
+            setTimeout(() => {
+                // Hide loading animation
+                document.getElementById('loadingContainer').style.display = 'none';
+                
+                // Show result container
+                document.getElementById('resultContainer').style.display = 'block';
+                
+                // Hide login form
+                document.getElementById('loginForm').style.display = 'none';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
